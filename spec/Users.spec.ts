@@ -39,14 +39,13 @@ describe('Users Routes', () => {
 
   describe(`"GET:${usersPath}"`, () => {
     it(`should return a JSON object with all the users and a status code of "${OK}" if the
-            request was successful.`, (done) => {
+            request was successful.`, () => {
       agent.get(usersPath).end((err: Error, res: Response) => {
         pErr(err);
         expect(res.status).toBe(OK);
         const retUsers = res.body.users;
         expect(retUsers).toEqual(testUsers);
         expect(res.body.error).toBeUndefined();
-        done();
       });
     });
   });

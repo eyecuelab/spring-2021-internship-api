@@ -32,15 +32,6 @@ jasmine.loadConfig({
   stopSpecOnExpectationFailure: false,
 });
 
-// On complete callback function
-jasmine.onComplete((passed: boolean) => {
-  if (passed) {
-    logger.info('All tests have passed :)');
-  } else {
-    logger.error('At least one test has failed :(');
-  }
-});
-
 // Run all or a single unit-test
 if (options.testFile) {
   const testFile = options.testFile;

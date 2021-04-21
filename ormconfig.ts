@@ -1,7 +1,14 @@
 import dotenv from 'dotenv';
 import { ConnectionOptions } from 'typeorm';
 
-console.log(dotenv.config());
+// Set the env file
+const env = process.env.NODE_ENV ?? 'development';
+const envVars = dotenv.config({
+  path: `./env/${env}.env`,
+});
+if (envVars.error) {
+  throw envVars.error;
+}
 
 const DatabaseConnectionTestConfiguration: ConnectionOptions = {
   type: 'postgres',
