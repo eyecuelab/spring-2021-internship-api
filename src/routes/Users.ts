@@ -13,7 +13,7 @@ const router = Router();
  ******************************************************************************/
 
 router.get('/all', async (req: Request, res: Response) => {
-  const users = await getConnection().getRepository(User).createQueryBuilder('user').getMany();
+  const users = await getConnection().getRepository(User).find();
   return res.status(OK).json({ users });
 });
 
@@ -23,16 +23,9 @@ router.get('/all', async (req: Request, res: Response) => {
 
 router.get('/:id', async (req: Request, res: Response) => {
   const { id } = req.params as ParamsDictionary;
-  const user = await getConnection()
-    .createQueryBuilder()
-    .select('user')
-    .from(User, 'user')
-    .where('user.id = :id', { id: id })
-    .getOne();
+  const user = await getConnection().getRepository(User).findOne(id);
   if (!user) {
-    res.status(404);
-    res.end();
-    return;
+    return res.status(BAD_REQUEST);
   }
   return res.status(OK).json({ user });
 });
@@ -50,19 +43,8 @@ router.post('/add', async (req: Request, res: Response) => {
     });
   }
   // add validation
-  await getConnection()
-    .createQueryBuilder()
-    .insert()
-    .into(User)
-    .values([
-      {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        age: user.age,
-      },
-    ])
-    .execute();
-  return res.status(CREATED).end();
+  await getConnection().getRepository(User).save(user);
+  return res.status(CREATED).json({ user });
 });
 
 /******************************************************************************
@@ -76,17 +58,9 @@ router.put('/update', async (req: Request, res: Response) => {
       error: paramMissingError,
     });
   }
-  await getConnection()
-    .createQueryBuilder()
-    .update(User)
-    .set({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      age: user.age,
-    })
-    .where('id = :id', { id: user.id })
-    .execute();
-  return res.status(OK).end();
+  // add validation and only set provided fields
+  const data = await getConnection().getRepository(User).save(user);
+  return res.status(OK).json({ user: data });
 });
 
 /******************************************************************************
@@ -94,8 +68,13 @@ router.put('/update', async (req: Request, res: Response) => {
  ******************************************************************************/
 
 router.delete('/delete/:id', async (req: Request, res: Response) => {
+  const repository = await getConnection().getRepository(User);
   const { id } = req.params as ParamsDictionary;
-  await getConnection().createQueryBuilder().delete().from(User).where('id = :id', { id: id }).execute();
+  const user = await repository.findOne(id);
+  if (!user) {
+    return res.status(BAD_REQUEST);
+  }
+  await repository.remove([user]);
   return res.status(OK).end();
 });
 
