@@ -9,7 +9,7 @@ import { paramMissingError } from '../shared/constants';
 /******************************************************************************
  *                      Get All Users - "GET /api/users"
  ******************************************************************************/
-export const list = async (req: Request, res: Response) => {
+export const list = async (req: Request, res: Response): Promise<Response | void> => {
   const users = await getConnection().getRepository(User).find();
   return res.status(OK).json({ users });
 };
@@ -18,7 +18,7 @@ export const list = async (req: Request, res: Response) => {
  *                      Get User - "GET /api/users/:id"
  ******************************************************************************/
 
-export const one = async (req: Request, res: Response) => {
+export const one = async (req: Request, res: Response): Promise<Response | void> => {
   const { id } = req.params as ParamsDictionary;
   const user = await getConnection().getRepository(User).findOne(id);
   if (!user) {
@@ -33,7 +33,7 @@ export const one = async (req: Request, res: Response) => {
  *                       Add One - "POST /api/users"
  ******************************************************************************/
 
-export const add = async (req: Request, res: Response) => {
+export const add = async (req: Request, res: Response): Promise<Response | void> => {
   const { user: input } = req.body;
   const user = new User();
   user.firstName = input.firstName;
@@ -57,7 +57,7 @@ export const add = async (req: Request, res: Response) => {
  *                       Update - "PUT /api/users/:id"
  ******************************************************************************/
 
-export const update = async (req: Request, res: Response) => {
+export const update = async (req: Request, res: Response): Promise<Response | void> => {
   const { user } = req.body;
   if (!user && !user.id) {
     res
@@ -77,7 +77,7 @@ export const update = async (req: Request, res: Response) => {
  *                    Delete - "DELETE /api/users/:id"
  ******************************************************************************/
 
-export const remove = async (req: Request, res: Response) => {
+export const remove = async (req: Request, res: Response): Promise<Response | void> => {
   const repository = await getConnection().getRepository(User);
   const { id } = req.params as ParamsDictionary;
   const user = await repository.findOne(id);
