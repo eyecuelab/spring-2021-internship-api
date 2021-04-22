@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
-import { IsNumber, IsInt, IsDate, Length, Min } from "class-validator";
+import { IsNumber, IsInt, Length, Min } from "class-validator";
 import { Project } from "./Project";
 
 @Entity()
@@ -25,13 +25,15 @@ export class Item {
   category: string;
 
   @Column()
-  @IsDate()
-  date: Date;
+  date: string;
 
   @Column()
-  @Min(0)
-  @IsInt()
+  @IsNumber()
   minutes: number;
+
+  @Column()
+  @IsNumber()
+  hours: number;
 
   @ManyToOne(() => Project, (project) => project.items)
   project: Project;
