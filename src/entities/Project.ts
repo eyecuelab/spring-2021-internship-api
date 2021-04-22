@@ -13,10 +13,10 @@ export class Project {
   projectName: string;
 
   @Column()
-  startDate: Date;
+  startDate: string;
 
   @Column()
-  endDate: Date;
+  endDate: string;
 
   @OneToMany(() => Task, (task) => task.project)
   tasks: Task;
