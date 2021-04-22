@@ -5,6 +5,7 @@ import { getConnection } from 'typeorm';
 import { validate } from 'class-validator';
 import { User } from '../entities/User';
 import { paramMissingError } from '../shared/constants';
+import logger from 'src/shared/Logger';
 
 /******************************************************************************
  *                      Get All Users - "GET /api/users"
@@ -41,16 +42,15 @@ export const add = async (req: Request, res: Response): Promise<Response | void>
   user.email = input.email;
   user.age = input.age;
   const errors = await validate(user);
-  // TODO: check validation and return error message
-  if (errors.length > 0) {
-    console.log({ errors });
 
+  if (errors.length > 0) {
+    logger.error(errors);
     res.status(BAD_REQUEST).json({ error: errors }).end();
     return;
   }
-  // add validation
+
   const data = await getConnection().getRepository(User).save(user);
-  return res.status(CREATED).json({ thingo: data });
+  return res.status(CREATED).json({ user: data });
 };
 
 /******************************************************************************
