@@ -54,6 +54,7 @@ export const add = async (
   item.date = input.date;
   item.minutes = input.minutes;
   item.hours = input.hours;
+  item.project = input.project;
   const errors = await validate(item);
 
   if (errors.length > 0) {

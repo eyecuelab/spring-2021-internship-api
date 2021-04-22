@@ -48,6 +48,7 @@ export const add = async (
   const task = new Task();
   task.taskName = input.taskName;
   task.taskStatus = input.taskStatus;
+  task.project = input.project;
   const errors = await validate(task);
 
   if (errors.length > 0) {

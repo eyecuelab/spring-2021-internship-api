@@ -53,6 +53,7 @@ export const add = async (
   const taskActivity = new TaskActivity();
   taskActivity.dateTime = input.dateTime;
   taskActivity.description = input.description;
+  taskActivity.task = input.task;
   const errors = await validate(taskActivity);
 
   if (errors.length > 0) {
