@@ -7,7 +7,7 @@ export class TaskActivity {
   id: number;
 
   @Column()
-  dateTime: Date;
+  dateTime: string;
 
   @Column()
   description: string;
