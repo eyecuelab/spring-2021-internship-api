@@ -12,6 +12,6 @@ export class TaskActivity {
   @Column()
   description: string;
 
-  @ManyToOne(() => Task, (task) => task.taskActivities)
+  @ManyToOne(() => Task, (task) => task.activity)
   task: Task;
 }
