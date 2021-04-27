@@ -53,14 +53,16 @@ export const one = async (
     res.end();
     return;
   }
+
   return res.status(OK).json({
-    project,
-    toDoTasks,
-    doingTasks,
-    doneTasks,
-    materialItems,
-    laborItems,
-    otherItems,
+    currentProject: {
+      projectName: project.projectName,
+      startDate: project.startDate,
+      endDate: project.endDate,
+      id: project.id,
+      items: { material: materialItems, labor: laborItems, other: otherItems },
+      tasks: { todo: toDoTasks, doing: doingTasks, done: doneTasks },
+    },
   });
 };
 
