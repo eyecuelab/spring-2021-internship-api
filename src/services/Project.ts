@@ -4,6 +4,8 @@ import { ParamsDictionary } from "express-serve-static-core";
 import { getConnection } from "typeorm";
 import { validate } from "class-validator";
 import { Project } from "../entities/Project";
+import { Task } from "../entities/Task";
+import { Item } from "../entities/Item";
 import { paramMissingError } from "../shared/constants";
 import logger from "src/shared/Logger";
 
@@ -28,12 +30,18 @@ export const one = async (
 ): Promise<Response | void> => {
   const { id } = req.params as ParamsDictionary;
   const project = await getConnection().getRepository(Project).findOne(id);
+  const tasks = await getConnection()
+    .getRepository(Task)
+    .find({ where: { project: { id } } });
+  const items = await getConnection()
+    .getRepository(Item)
+    .find({ where: { project: { id } } });
   if (!project) {
     res.status(NOT_FOUND);
     res.end();
     return;
   }
-  return res.status(OK).json({ project });
+  return res.status(OK).json({ project, tasks, items });
 };
 
 /******************************************************************************
