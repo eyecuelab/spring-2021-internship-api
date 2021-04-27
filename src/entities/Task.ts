@@ -24,6 +24,8 @@ export class Task {
   @ManyToOne(() => Project, (project) => project.tasks)
   project: Project;
 
-  @OneToMany(() => TaskActivity, (taskActivity) => taskActivity.task)
+  @OneToMany(() => TaskActivity, (taskActivity) => taskActivity.task, {
+    eager: true,
+  })
   taskActivities: TaskActivity;
 }
