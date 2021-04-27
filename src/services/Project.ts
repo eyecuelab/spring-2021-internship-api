@@ -30,18 +30,38 @@ export const one = async (
 ): Promise<Response | void> => {
   const { id } = req.params as ParamsDictionary;
   const project = await getConnection().getRepository(Project).findOne(id);
-  const tasks = await getConnection()
+  const toDoTasks = await getConnection()
     .getRepository(Task)
-    .find({ where: { project: { id } } });
-  const items = await getConnection()
+    .find({ where: { project: { id }, taskStatus: "todo" } });
+  const doingTasks = await getConnection()
+    .getRepository(Task)
+    .find({ where: { project: { id }, taskStatus: "doing" } });
+  const doneTasks = await getConnection()
+    .getRepository(Task)
+    .find({ where: { project: { id }, taskStatus: "done" } });
+  const materialItems = await getConnection()
     .getRepository(Item)
-    .find({ where: { project: { id } } });
+    .find({ where: { project: { id }, category: "material" } });
+  const laborItems = await getConnection()
+    .getRepository(Item)
+    .find({ where: { project: { id }, category: "labor" } });
+  const otherItems = await getConnection()
+    .getRepository(Item)
+    .find({ where: { project: { id }, category: "other" } });
   if (!project) {
     res.status(NOT_FOUND);
     res.end();
     return;
   }
-  return res.status(OK).json({ project, tasks, items });
+  return res.status(OK).json({
+    project,
+    toDoTasks,
+    doingTasks,
+    doneTasks,
+    materialItems,
+    laborItems,
+    otherItems,
+  });
 };
 
 /******************************************************************************
