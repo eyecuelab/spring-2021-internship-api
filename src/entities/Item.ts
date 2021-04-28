@@ -11,12 +11,12 @@ export class Item {
   @Length(2, 20)
   itemName: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Min(0)
   @IsNumber()
   itemPrice: number;
 
-  @Column()
+  @Column({ nullable: true })
   @Min(1)
   @IsInt()
   quantity: number;
@@ -24,10 +24,10 @@ export class Item {
   @Column()
   category: string;
 
-  @Column()
+  @Column({ nullable: true })
   date: string;
 
-  @Column()
+  @Column({ nullable: true })
   @IsNumber()
   minutes: number;
 
