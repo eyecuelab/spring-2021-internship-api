@@ -32,13 +32,22 @@ export const one = async (
   const project = await getConnection().getRepository(Project).findOne(id);
   const toDoTasks = await getConnection()
     .getRepository(Task)
-    .find({ where: { project: { id }, taskStatus: "todo" } });
+    .find({
+      where: { project: { id }, taskStatus: "todo" },
+      order: { position: "ASC" },
+    });
   const doingTasks = await getConnection()
     .getRepository(Task)
-    .find({ where: { project: { id }, taskStatus: "doing" } });
+    .find({
+      where: { project: { id }, taskStatus: "doing" },
+      order: { position: "ASC" },
+    });
   const doneTasks = await getConnection()
     .getRepository(Task)
-    .find({ where: { project: { id }, taskStatus: "done" } });
+    .find({
+      where: { project: { id }, taskStatus: "done" },
+      order: { position: "ASC" },
+    });
   const materialItems = await getConnection()
     .getRepository(Item)
     .find({ where: { project: { id }, category: "material" } });

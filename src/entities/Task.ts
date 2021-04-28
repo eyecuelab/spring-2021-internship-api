@@ -21,6 +21,9 @@ export class Task {
   @Column()
   taskStatus: string;
 
+  @Column()
+  position: number;
+
   @ManyToOne(() => Project, (project) => project.tasks)
   project: Project;
 
