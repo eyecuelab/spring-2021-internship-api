@@ -52,6 +52,7 @@ export const add = async (
   task.taskStatus = input.taskStatus;
   task.project = input.project;
   task.position = position * 100;
+  task.activity = input.activity;
   const errors = await validate(task);
 
   if (errors.length > 0) {
