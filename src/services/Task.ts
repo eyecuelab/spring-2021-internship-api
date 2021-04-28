@@ -44,11 +44,14 @@ export const add = async (
   req: Request,
   res: Response
 ): Promise<Response | void> => {
+  const taskList = await getConnection().getRepository(Task).find();
+  const position: number = taskList.length + 1;
   const { task: input } = req.body;
   const task = new Task();
   task.taskName = input.taskName;
   task.taskStatus = input.taskStatus;
   task.project = input.project;
+  task.position = position * 100;
   const errors = await validate(task);
 
   if (errors.length > 0) {
