@@ -1,20 +1,17 @@
-import { Request, Response } from "express";
-import { BAD_REQUEST, CREATED, OK, NOT_FOUND } from "http-status-codes";
-import { ParamsDictionary } from "express-serve-static-core";
-import { getConnection } from "typeorm";
-import { validate } from "class-validator";
-import { Item } from "../entities/Item";
-import { paramMissingError } from "../shared/constants";
-import logger from "src/shared/Logger";
+import { Request, Response } from 'express';
+import { BAD_REQUEST, CREATED, OK, NOT_FOUND } from 'http-status-codes';
+import { ParamsDictionary } from 'express-serve-static-core';
+import { getConnection } from 'typeorm';
+import { validate } from 'class-validator';
+import { Item } from '../entities/Item';
+import { paramMissingError } from '../shared/constants';
+import logger from '../shared/Logger';
 
 /******************************************************************************
  *                      Get All Items - "GET /api/items"
  ******************************************************************************/
 
-export const list = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const list = async (req: Request, res: Response): Promise<Response | void> => {
   const items = await getConnection().getRepository(Item).find();
   return res.status(OK).json({ items });
 };
@@ -23,10 +20,7 @@ export const list = async (
  *                      Get Item - "GET /api/items/:id"
  ******************************************************************************/
 
-export const one = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const one = async (req: Request, res: Response): Promise<Response | void> => {
   const { id } = req.params as ParamsDictionary;
   const item = await getConnection().getRepository(Item).findOne(id);
   if (!item) {
@@ -41,10 +35,7 @@ export const one = async (
  *                       Add One - "POST /api/items"
  ******************************************************************************/
 
-export const add = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const add = async (req: Request, res: Response): Promise<Response | void> => {
   const { item: input } = req.body;
   const item = new Item();
   item.itemName = input.itemName;
@@ -71,10 +62,7 @@ export const add = async (
  *                       Update - "PUT /api/items/:id"
  ******************************************************************************/
 
-export const update = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const update = async (req: Request, res: Response): Promise<Response | void> => {
   const { item } = req.body;
   if (!item && !item.id) {
     res
@@ -94,10 +82,7 @@ export const update = async (
  *                    Delete - "DELETE /api/items/:id"
  ******************************************************************************/
 
-export const remove = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const remove = async (req: Request, res: Response): Promise<Response | void> => {
   const repository = await getConnection().getRepository(Item);
   const { id } = req.params as ParamsDictionary;
   const item = await repository.findOne(id);

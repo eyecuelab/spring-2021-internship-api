@@ -1,13 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
-import {
-  IsNumber,
-  IsInt,
-  Length,
-  Min,
-  IsOptional,
-  IsNumberString,
-} from "class-validator";
-import { Project } from "./Project";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { IsNumber, IsInt, Length, Min, IsOptional, IsNumberString } from 'class-validator';
+import { Project } from './Project';
 // import { Transform } from "node:stream";
 
 @Entity()
@@ -19,7 +12,7 @@ export class Item {
   @Length(2, 20)
   itemName: string;
 
-  @Column("decimal", { nullable: true })
+  @Column('real', { nullable: true })
   @IsOptional()
   @IsNumberString()
   itemPrice: number;

@@ -1,19 +1,16 @@
-import { Request, Response } from "express";
-import { BAD_REQUEST, CREATED, OK, NOT_FOUND } from "http-status-codes";
-import { ParamsDictionary } from "express-serve-static-core";
-import { getConnection } from "typeorm";
-import { validate } from "class-validator";
-import { Task } from "../entities/Task";
-import { paramMissingError } from "../shared/constants";
-import logger from "src/shared/Logger";
+import { Request, Response } from 'express';
+import { BAD_REQUEST, CREATED, OK, NOT_FOUND } from 'http-status-codes';
+import { ParamsDictionary } from 'express-serve-static-core';
+import { getConnection } from 'typeorm';
+import { validate } from 'class-validator';
+import { Task } from '../entities/Task';
+import { paramMissingError } from '../shared/constants';
+import logger from '../shared/Logger';
 
 /******************************************************************************
  *                      Get All Tasks - "GET /api/tasks"
  ******************************************************************************/
-export const list = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const list = async (req: Request, res: Response): Promise<Response | void> => {
   const tasks = await getConnection().getRepository(Task).find();
   return res.status(OK).json({ tasks });
 };
@@ -22,10 +19,7 @@ export const list = async (
  *                      Get Task - "GET /api/tasks/:id"
  ******************************************************************************/
 
-export const one = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const one = async (req: Request, res: Response): Promise<Response | void> => {
   const { id } = req.params as ParamsDictionary;
   const task = await getConnection().getRepository(Task).findOne(id);
   if (!task) {
@@ -40,10 +34,7 @@ export const one = async (
  *                       Add One Task - "POST /api/tasks"
  ******************************************************************************/
 
-export const add = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const add = async (req: Request, res: Response): Promise<Response | void> => {
   const taskList = await getConnection().getRepository(Task).find();
   const position: number = taskList.length + 1;
   const { task: input } = req.body;
@@ -69,10 +60,7 @@ export const add = async (
  *                       Update Task - "PUT /api/tasks/:id"
  ******************************************************************************/
 
-export const update = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const update = async (req: Request, res: Response): Promise<Response | void> => {
   const { task } = req.body;
   if (!task && !task.id) {
     res
@@ -92,10 +80,7 @@ export const update = async (
  *                    Delete Task - "DELETE /api/tasks/:id"
  ******************************************************************************/
 
-export const remove = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const remove = async (req: Request, res: Response): Promise<Response | void> => {
   const repository = await getConnection().getRepository(Task);
   const { id } = req.params as ParamsDictionary;
   const intId = parseInt(id, 10);

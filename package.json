@@ -24,7 +24,7 @@
   "scripts": {
     "build": "node build.js",
     "lint": "eslint . --ext .ts",
-    "start": "node ./dist/src.index.js --env=production",
+    "start": "node ./dist/index.js --env=production",
     "prestart": "yarn build",
     "start:dev": "nodemon --watch 'src/**' --ext 'ts,json' --exec 'ts-node -r tsconfig-paths/register ./src'",
     "test": "ts-node -r tsconfig-paths/register ./spec",

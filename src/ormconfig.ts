@@ -10,21 +10,22 @@ if (envVars.error) {
   throw envVars.error;
 }
 
+const ext = process.env.NODE_ENV === 'production' ? 'js' : 'ts';
+
 const DatabaseConnectionTestConfiguration: ConnectionOptions = {
   type: 'postgres',
-  host: 'localhost',
-  port: 5432,
+  host: process.env.TYPEORM_HOST,
+  port: parseInt(process.env.TYPEORM_PORT ?? '5000'),
   username: process.env.TYPEORM_USERNAME,
   password: process.env.TYPEORM_PASSWORD,
   database: process.env.TYPEORM_DATABASE,
   synchronize: true,
-  dropSchema: true,
-  entities: [__dirname + '/src/entities/*.ts'],
-  migrations: [__dirname + '/src/migration/*.ts'],
+  entities: [__dirname + `/entities/*.${ext}`],
+  migrations: [__dirname + `/migration/*.${ext}`],
   cli: {
-    entitiesDir: __dirname + '/src/entities',
-    migrationsDir: __dirname + '/src/migration',
-    subscribersDir: __dirname + '/src/subscriber',
+    entitiesDir: __dirname + `/entities`,
+    migrationsDir: __dirname + `/migration`,
+    subscribersDir: __dirname + `/subscriber`,
   },
 };
 

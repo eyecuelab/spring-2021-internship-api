@@ -1,35 +1,35 @@
-import supertest from "supertest";
-import { getConnection } from "typeorm";
-import { Item } from "../src/entities/Item";
-import { initializeDB } from "../src/db";
+import supertest from 'supertest';
+import { getConnection } from 'typeorm';
+import { Item } from '../src/entities/Item';
+import { initializeDB } from '../src/db';
 
-import { OK } from "http-status-codes";
-import { Response, SuperTest, Test } from "supertest";
+import { OK } from 'http-status-codes';
+import { Response, SuperTest, Test } from 'supertest';
 
-import app from "../src/Server";
-import { pErr } from "../src/shared/functions";
+import app from '../src/Server';
+import { pErr } from '../src/shared/functions';
 
-describe("Items Routes", () => {
-  const itemsPath = "/api/items";
-  const itemsPathId = "/api/items/2";
+describe('Items Routes', () => {
+  const itemsPath = '/api/items';
+  const itemsPathId = '/api/items/2';
 
   let agent: SuperTest<Test>;
   const testItems = [
     {
-      itemName: "test 1",
-      itemPrice: 10,
+      itemName: 'test 1',
+      itemPrice: 100,
       quantity: 2,
-      category: "material",
-      date: "",
+      category: 'material',
+      date: '',
       minutes: 0,
       hours: 0,
     },
     {
-      itemName: "test 2",
-      itemPrice: 20,
+      itemName: 'test 2',
+      itemPrice: 20.99,
       quantity: 2,
-      category: "material",
-      date: "",
+      category: 'material',
+      date: '',
       minutes: 0,
       hours: 0,
     },
@@ -38,11 +38,11 @@ describe("Items Routes", () => {
   const testItem = [
     {
       id: 2,
-      itemName: "test 2",
+      itemName: 'test 2',
       itemPrice: 20,
       quantity: 2,
-      category: "material",
-      date: "",
+      category: 'material',
+      date: '',
       minutes: 0,
       hours: 0,
     },
@@ -50,11 +50,11 @@ describe("Items Routes", () => {
 
   const testItemPost = [
     {
-      itemName: "pose test 1",
+      itemName: 'pose test 1',
       itemPrice: 20,
       quantity: 2,
-      category: "material",
-      date: "",
+      category: 'material',
+      date: '',
       minutes: 0,
       hours: 0,
     },
@@ -62,18 +62,13 @@ describe("Items Routes", () => {
 
   const testItemPut = [
     {
-      itemName: "update test 1",
+      itemName: 'update test 1',
       itemPrice: 1000,
     },
   ];
 
   async function createTestData() {
-    await getConnection()
-      .createQueryBuilder()
-      .insert()
-      .into(Item)
-      .values(testItems)
-      .execute();
+    await getConnection().createQueryBuilder().insert().into(Item).values(testItems).execute();
   }
 
   async function destroyTestData() {

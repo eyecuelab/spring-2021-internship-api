@@ -1,11 +1,8 @@
 {
   "spec_dir": "spec",
-  "spec_files": [
-    "**/*[sS]pec.ts"
-  ],
-  "helpers": [
-    "helpers/**/*.js"
-  ],
+  "spec_files": ["**/*[sS]pec.ts"],
+  "helpers": ["helpers/**/*.js"],
   "stopSpecOnExpectationFailure": false,
-  "random": true
+  "random": true,
+  "verbose": true
 }

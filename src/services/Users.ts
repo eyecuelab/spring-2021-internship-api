@@ -5,7 +5,7 @@ import { getConnection } from 'typeorm';
 import { validate } from 'class-validator';
 import { User } from '../entities/User';
 import { paramMissingError } from '../shared/constants';
-import logger from 'src/shared/Logger';
+import logger from '../shared/Logger';
 
 /******************************************************************************
  *                      Get All Users - "GET /api/users"
