@@ -24,7 +24,7 @@ export class Task {
   @Column()
   position: number;
 
-  @ManyToOne(() => Project, (project) => project.tasks)
+  @ManyToOne(() => Project, (project) => project.tasks, { onDelete: "CASCADE" })
   project: Project;
 
   @OneToMany(() => TaskActivity, (activity) => activity.task, {
