@@ -12,6 +12,6 @@ export class TaskActivity {
   @Column()
   description: string;
 
-  @ManyToOne(() => Task, (task) => task.activity)
+  @ManyToOne(() => Task, (task) => task.activity, { onDelete: "CASCADE" })
   task: Task;
 }

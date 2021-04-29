@@ -98,6 +98,7 @@ export const remove = async (
 ): Promise<Response | void> => {
   const repository = await getConnection().getRepository(Task);
   const { id } = req.params as ParamsDictionary;
+  const intId = parseInt(id, 10);
   const task = await repository.findOne(id);
   if (!task) {
     res.status(BAD_REQUEST);
@@ -105,7 +106,7 @@ export const remove = async (
     return;
   }
   await repository.remove([task]);
-  return res.status(OK).end();
+  return res.status(OK).json({ task, intId });
 };
 
 /******************************************************************************
