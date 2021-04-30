@@ -1,0 +1,45 @@
+name: Test and Build
+
+on:
+  push:
+    branches: [main, develop, feature/ci]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          check-latest: true
+
+      - name: Setup PostgreSQL
+        uses: harmon758/postgresql-action@v1.0.0
+        with:
+          postgresql version: 12
+          postgresql db: curo_test
+          postgresql user: postgres_test
+          postgresql password: postgres
+
+      - name: Cache and install deps
+        uses: bahmutov/npm-install@v1
+
+      - name: Lint
+        run: yarn lint
+      - name: Type check and transpile
+        run: yarn tsc
+      - name: Run Tests
+        run: yarn test
+      - name: Create production build
+        run: yarn build
+        env:
+          NODE_ENV: production
