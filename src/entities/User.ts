@@ -1,7 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 // https://orkhan.gitbook.io/typeorm/docs/validation
 // https://github.com/typestack/class-validator
-import { IsInt, Length, IsEmail, Min, Max } from 'class-validator';
+import { IsInt, Length, IsEmail, Min, Max } from "class-validator";
 
 @Entity()
 export class User {

@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import { createConnection, getConnectionOptions, Connection } from 'typeorm';
-import ormconfigJSON from '../ormconfig.json';
+import { createConnection, Connection } from 'typeorm';
 import { Tedis } from 'tedis';
-import logger from '../src/shared/Logger';
+import ormconfig from './ormconfig';
+import logger from './shared/Logger';
 
 let connection: Connection | null = null;
 
@@ -11,8 +11,7 @@ export async function initializeDB(): Promise<Connection> {
     logger.info('existing connection returned');
     return connection;
   }
-  const envOpts = await getConnectionOptions();
-  connection = await createConnection({ ...envOpts, ...ormconfigJSON });
+  connection = await createConnection(ormconfig);
   logger.info('Database successfully initialized');
   return connection;
 }

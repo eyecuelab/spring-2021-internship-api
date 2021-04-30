@@ -26,19 +26,11 @@ const jasmine = new Jasmine(null);
 
 // Set location of test files
 jasmine.loadConfig({
-  random: true,
+  random: false,
   spec_dir: 'spec',
   spec_files: ['./**/*.spec.ts'],
   stopSpecOnExpectationFailure: false,
-});
-
-// On complete callback function
-jasmine.onComplete((passed: boolean) => {
-  if (passed) {
-    logger.info('All tests have passed :)');
-  } else {
-    logger.error('At least one test has failed :(');
-  }
+  reporter: 'jasmine-ts-console-reporter',
 });
 
 // Run all or a single unit-test
