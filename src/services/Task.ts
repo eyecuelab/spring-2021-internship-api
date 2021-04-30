@@ -49,6 +49,7 @@ export const add = async (
   const { task: input } = req.body;
   const task = new Task();
   task.taskName = input.taskName;
+  task.taskDesc = input.taskDesc;
   task.taskStatus = input.taskStatus;
   task.project = input.project;
   task.position = position * 100;
