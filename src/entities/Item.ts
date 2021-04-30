@@ -38,6 +38,6 @@ export class Item {
   @IsNumberString()
   hours: number;
 
-  @ManyToOne(() => Project, (project) => project.items)
+  @ManyToOne(() => Project, (project) => project.items, { onDelete: "CASCADE" })
   project: Project;
 }

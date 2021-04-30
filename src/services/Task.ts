@@ -40,6 +40,7 @@ export const add = async (req: Request, res: Response): Promise<Response | void>
   const { task: input } = req.body;
   const task = new Task();
   task.taskName = input.taskName;
+  task.taskDesc = input.taskDesc;
   task.taskStatus = input.taskStatus;
   task.project = input.project;
   task.position = position * 100;
@@ -83,7 +84,6 @@ export const update = async (req: Request, res: Response): Promise<Response | vo
 export const remove = async (req: Request, res: Response): Promise<Response | void> => {
   const repository = await getConnection().getRepository(Task);
   const { id } = req.params as ParamsDictionary;
-  const intId = parseInt(id, 10);
   const task = await repository.findOne(id);
   if (!task) {
     res.status(BAD_REQUEST);
@@ -91,7 +91,7 @@ export const remove = async (req: Request, res: Response): Promise<Response | vo
     return;
   }
   await repository.remove([task]);
-  return res.status(OK).json({ task, intId });
+  return res.status(OK).end();
 };
 
 /******************************************************************************
