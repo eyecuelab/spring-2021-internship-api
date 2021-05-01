@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 // https://orkhan.gitbook.io/typeorm/docs/validation
 // https://github.com/typestack/class-validator
-import { IsInt, Length, IsEmail, Min, Max } from "class-validator";
+import { Length, IsEmail } from "class-validator";
 
 @Entity()
 export class User {
@@ -17,12 +17,9 @@ export class User {
   lastName: string;
 
   @Column()
-  @IsInt()
-  @Min(0)
-  @Max(120)
-  age: number;
-
-  @Column()
   @IsEmail()
   email: string;
+
+  @Column()
+  uuid: string;
 }
