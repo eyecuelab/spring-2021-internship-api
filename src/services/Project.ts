@@ -1,56 +1,80 @@
-import { Request, Response } from 'express';
-import { BAD_REQUEST, CREATED, OK, NOT_FOUND } from 'http-status-codes';
-import { ParamsDictionary } from 'express-serve-static-core';
-import { getConnection } from 'typeorm';
-import { validate } from 'class-validator';
-import { Project } from '../entities/Project';
-import { Task } from '../entities/Task';
-import { Item } from '../entities/Item';
-import { paramMissingError } from '../shared/constants';
-import logger from '../shared/Logger';
+import { Request, Response } from "express";
+import {
+  BAD_REQUEST,
+  CREATED,
+  OK,
+  NOT_FOUND,
+  FORBIDDEN,
+} from "http-status-codes";
+import { ParamsDictionary } from "express-serve-static-core";
+import { getConnection } from "typeorm";
+import { validate } from "class-validator";
+import { Project } from "../entities/Project";
+import { Task } from "../entities/Task";
+import { Item } from "../entities/Item";
+import { paramMissingError } from "../shared/constants";
+import logger from "../shared/Logger";
 
 /******************************************************************************
  *                      Get All Projects - "GET /api/projects"
  ******************************************************************************/
-export const list = async (req: Request, res: Response): Promise<Response | void> => {
-  const projects = await getConnection().getRepository(Project).find();
-  return res.status(OK).json({ projects });
+export const list = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
+  const { user } = req;
+  console.log(user);
+  if (user === undefined) {
+    return res.status(FORBIDDEN).end();
+  } else {
+    const projects = await getConnection()
+      .getRepository(Project)
+      .find({
+        where: { uuid: user.uuid },
+      });
+
+    console.log(user);
+    return res.status(OK).json({ projects });
+  }
 };
 
 /******************************************************************************
  *                      Get Project - "GET /api/projects/:id"
  ******************************************************************************/
 
-export const one = async (req: Request, res: Response): Promise<Response | void> => {
+export const one = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
   const { id } = req.params as ParamsDictionary;
   const project = await getConnection().getRepository(Project).findOne(id);
   const toDoTasks = await getConnection()
     .getRepository(Task)
     .find({
-      where: { project: { id }, taskStatus: 'todo' },
-      order: { position: 'ASC' },
+      where: { project: { id }, taskStatus: "todo" },
+      order: { position: "ASC" },
     });
   const doingTasks = await getConnection()
     .getRepository(Task)
     .find({
-      where: { project: { id }, taskStatus: 'doing' },
-      order: { position: 'ASC' },
+      where: { project: { id }, taskStatus: "doing" },
+      order: { position: "ASC" },
     });
   const doneTasks = await getConnection()
     .getRepository(Task)
     .find({
-      where: { project: { id }, taskStatus: 'done' },
-      order: { position: 'ASC' },
+      where: { project: { id }, taskStatus: "done" },
+      order: { position: "ASC" },
     });
   const materialItems = await getConnection()
     .getRepository(Item)
-    .find({ where: { project: { id }, category: 'material' } });
+    .find({ where: { project: { id }, category: "material" } });
   const laborItems = await getConnection()
     .getRepository(Item)
-    .find({ where: { project: { id }, category: 'labor' } });
+    .find({ where: { project: { id }, category: "labor" } });
   const otherItems = await getConnection()
     .getRepository(Item)
-    .find({ where: { project: { id }, category: 'other' } });
+    .find({ where: { project: { id }, category: "other" } });
   if (!project) {
     res.status(NOT_FOUND);
     res.end();
@@ -73,7 +97,10 @@ export const one = async (req: Request, res: Response): Promise<Response | void>
  *                       Add One Project - "POST /api/projects"
  ******************************************************************************/
 
-export const add = async (req: Request, res: Response): Promise<Response | void> => {
+export const add = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
   const { project: input } = req.body;
   const project = new Project();
   project.projectName = input.projectName;
@@ -95,7 +122,10 @@ export const add = async (req: Request, res: Response): Promise<Response | void>
  *                       Update Project - "PUT /api/projects/:id"
  ******************************************************************************/
 
-export const update = async (req: Request, res: Response): Promise<Response | void> => {
+export const update = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
   const { project } = req.body;
   if (!project && !project.id) {
     res
@@ -115,7 +145,10 @@ export const update = async (req: Request, res: Response): Promise<Response | vo
  *                    Delete Project - "DELETE /api/projects/:id"
  ******************************************************************************/
 
-export const remove = async (req: Request, res: Response): Promise<Response | void> => {
+export const remove = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
   const repository = await getConnection().getRepository(Project);
   const { id } = req.params as ParamsDictionary;
   const project = await repository.findOne(id);
