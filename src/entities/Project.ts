@@ -18,6 +18,9 @@ export class Project {
   @Column()
   endDate: string;
 
+  @Column()
+  uuid: string;
+
   @OneToMany(() => Task, (task) => task.project)
   tasks: Task;
 
