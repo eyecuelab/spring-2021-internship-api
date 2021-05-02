@@ -23,10 +23,10 @@ export const list = async (
   res: Response
 ): Promise<Response | void> => {
   const { user } = req;
-  console.log(user);
   if (user === undefined) {
     return res.status(FORBIDDEN).end();
   } else {
+    console.log(user.uuid);
     const projects = await getConnection()
       .getRepository(Project)
       .find({
@@ -106,6 +106,7 @@ export const add = async (
   project.projectName = input.projectName;
   project.startDate = input.startDate;
   project.endDate = input.endDate;
+  project.uuid = input.uuid;
   const errors = await validate(project);
 
   if (errors.length > 0) {
