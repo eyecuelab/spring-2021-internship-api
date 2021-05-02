@@ -32,15 +32,10 @@ export const auth = async (
 
   if (user) {
     const existingUUID = user.uuid;
-    const existingUser = await getConnection().getRepository(User).save({
-      id: user.id,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-      uuid: existingUUID,
-    });
-    req.session.userId = existingUser.uuid;
-    console.log(req.session.userId);
+    req.session.userId = user.uuid;
+    const existingUser = await getConnection()
+      .getRepository(User)
+      .findOne({ where: { uuid: existingUUID } });
     return res.status(OK).json({ existingUser });
   }
   if (!user) {
@@ -55,6 +50,22 @@ export const auth = async (
   }
 };
 
+/******************************************************************************
+ *                      Sign User Out - "DELETE /api/v1/auth/google"
+ ******************************************************************************/
+
+export const signOut = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
+  await req.session.destroy(() => {
+    res.status(OK).json({
+      message: "Logged out successfully",
+    });
+  });
+};
+
 export default {
   auth,
+  signOut,
 };
