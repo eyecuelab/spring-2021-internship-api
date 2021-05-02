@@ -9,4 +9,6 @@ const router = Router();
 
 router.post("/auth/google", AuthService.auth);
 
+router.delete("/auth/google", AuthService.signOut);
+
 export default router;
