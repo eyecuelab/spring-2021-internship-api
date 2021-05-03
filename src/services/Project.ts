@@ -34,13 +34,12 @@ export const getmine = async (
   req: Request,
   res: Response
 ): Promise<Response | void> => {
-  const { id } = req.params as ParamsDictionary;
+  const { id } = req.body;
   const projects = await getConnection()
     .getRepository(Project)
     .find({
       where: { uuid: id },
     });
-  console.log({ cookie: req.cookies });
   return res.status(OK).json({ projects });
 };
 
