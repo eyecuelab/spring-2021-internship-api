@@ -3,6 +3,7 @@ import { OK } from "http-status-codes";
 import { getConnection } from "typeorm";
 import { User } from "../entities/User";
 import { OAuth2Client } from "google-auth-library";
+import passport from "passport";
 import { v4 } from "uuid";
 
 /******************************************************************************
@@ -24,21 +25,28 @@ export const auth = async (
   const firstName = payload?.given_name;
   const lastName = payload?.family_name;
 
-  const user = await getConnection()
+  const existingUser = await getConnection()
     .getRepository(User)
     .findOne({
       where: { email: email },
     });
 
-  if (user) {
-    const existingUUID = user.uuid;
-    req.session.userId = user.uuid;
-    const existingUser = await getConnection()
-      .getRepository(User)
-      .findOne({ where: { uuid: existingUUID } });
+  if (existingUser) {
+    passport.authenticate("google", function (req, res) {
+      res.redirect("/users/" + req.user);
+      res.cookie("userid", req.user.uuid);
+    });
     return res.status(OK).json({ existingUser });
+    // const existingUUID = user.uuid;
+    // req.session.userId = user.uuid;
+    // const existingUser = await getConnection()
+    //   .getRepository(User)
+    //   .findOne({ where: { uuid: existingUUID } });
+    // req.user = existingUser;
+    // return res.status(OK).json({ existingUser });
   }
-  if (!user) {
+
+  if (!existingUser) {
     const newUser = await getConnection().getRepository(User).save({
       uuid: v4(),
       email: email,
@@ -46,6 +54,8 @@ export const auth = async (
       lastName: lastName,
     });
     req.session.userId = newUser.uuid;
+    req.user = newUser;
+    res.cookie("userid", req.user.uuid);
     return res.status(OK).json({ newUser });
   }
 };
@@ -58,11 +68,13 @@ export const signOut = async (
   req: Request,
   res: Response
 ): Promise<Response | void> => {
-  await req.session.destroy(() => {
-    res.status(OK).json({
-      message: "Logged out successfully",
-    });
+  console.log(req.session.userId);
+  const { user } = req;
+  await req.session.destroy(function () {
+    console.log({ loggedUser: user });
   });
+  console.log(req.session);
+  return res.status(OK).json({ message: "User Signed Out" });
 };
 
 export default {

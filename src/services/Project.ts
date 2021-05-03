@@ -14,6 +14,7 @@ import { Task } from "../entities/Task";
 import { Item } from "../entities/Item";
 import { paramMissingError } from "../shared/constants";
 import logger from "../shared/Logger";
+// import { isLoggedIn } from "../Server";
 
 /******************************************************************************
  *                      Get All Projects - "GET /api/projects"
@@ -22,20 +23,25 @@ export const list = async (
   req: Request,
   res: Response
 ): Promise<Response | void> => {
-  const { user } = req;
-  if (user === undefined) {
-    return res.status(FORBIDDEN).end();
-  } else {
-    console.log(user.uuid);
-    const projects = await getConnection()
-      .getRepository(Project)
-      .find({
-        where: { uuid: user.uuid },
-      });
+  const projects = await getConnection().getRepository(Project).find();
+  return res.status(OK).json({ projects });
+};
 
-    console.log(user);
-    return res.status(OK).json({ projects });
-  }
+/******************************************************************************
+ *                      Get My Projects - "POST /api/projects/myprojects"
+ ******************************************************************************/
+export const getmine = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
+  const { id } = req.params as ParamsDictionary;
+  const projects = await getConnection()
+    .getRepository(Project)
+    .find({
+      where: { uuid: id },
+    });
+  console.log({ cookie: req.cookies });
+  return res.status(OK).json({ projects });
 };
 
 /******************************************************************************
@@ -172,4 +178,5 @@ export default {
   add,
   update,
   remove,
+  getmine,
 };

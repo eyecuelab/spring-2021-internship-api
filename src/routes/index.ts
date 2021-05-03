@@ -15,7 +15,7 @@ router.use("/items", ItemRouter);
 router.use("/projects", ProjectRouter);
 router.use("/tasks", TaskRouter);
 router.use("/task-activities", TaskActivityRouter);
-router.use("/v1/", AuthRouter);
+router.use("/auth/", AuthRouter);
 
 // Export the base-router
 export default router;

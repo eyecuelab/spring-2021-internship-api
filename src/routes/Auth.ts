@@ -7,8 +7,8 @@ const router = Router();
  *                       Add One - "POST /api/items"
  ******************************************************************************/
 
-router.post("/auth/google", AuthService.auth);
+router.post("/", AuthService.auth);
 
-router.delete("/auth/google", AuthService.signOut);
+router.delete("/", AuthService.signOut);
 
 export default router;
