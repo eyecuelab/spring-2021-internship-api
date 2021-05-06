@@ -25,31 +25,11 @@ export const list = async (
 ): Promise<Response | void> => {
   const { user } = req;
   if (user) {
+    console.log(user.uuid);
     const projects = await getConnection()
       .getRepository(Project)
       .find({
         where: { uuid: user.uuid },
-      });
-    return res.status(OK).json({ projects });
-  } else {
-    res.status(FORBIDDEN).end();
-  }
-};
-
-/******************************************************************************
- *                      Get My Projects - "POST /api/projects/myprojects"
- ******************************************************************************/
-export const getmine = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
-  const { user } = req;
-  if (user) {
-    const { id } = req.body;
-    const projects = await getConnection()
-      .getRepository(Project)
-      .find({
-        where: { uuid: id },
       });
     return res.status(OK).json({ projects });
   } else {
@@ -215,5 +195,4 @@ export default {
   add,
   update,
   remove,
-  getmine,
 };
