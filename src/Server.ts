@@ -1,25 +1,25 @@
-import morgan from 'morgan';
-import path from 'path';
-import helmet from 'helmet';
-import session from 'express-session';
-import { TypeormStore } from 'connect-typeorm';
-import express, { Request, Response, NextFunction } from 'express';
-import { getConnection } from 'typeorm';
-import { BAD_REQUEST } from 'http-status-codes';
-import cors from 'cors';
+import morgan from "morgan";
+import path from "path";
+import helmet from "helmet";
+import session from "express-session";
+import { TypeormStore } from "connect-typeorm";
+import express, { Request, Response, NextFunction } from "express";
+import { getConnection } from "typeorm";
+import { BAD_REQUEST } from "http-status-codes";
+import cors from "cors";
 
-import BaseRouter from './routes';
-import logger from './shared/Logger';
-import { User } from './entities/User';
-import { Session } from './entities/Session';
+import BaseRouter from "./routes";
+import logger from "./shared/Logger";
+import { User } from "./entities/User";
+import { Session } from "./entities/Session";
 
-declare module 'express-session' {
+declare module "express-session" {
   export interface SessionData {
     userId: string;
   }
 }
 
-declare module 'express-serve-static-core' {
+declare module "express-serve-static-core" {
   interface Request {
     user?: User;
   }
@@ -35,7 +35,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL ?? 'self',
+    origin: process.env.CLIENT_URL ?? "self",
     credentials: true,
   })
 );
@@ -50,12 +50,11 @@ app.use(async (req, res, next) => {
       cleanupLimit: 2,
       ttl: 86400,
     }).connect(sessionRepository),
-    secret: 'keyboard cat',
+    secret: "keyboard cat",
   })(req, res, next);
 });
 
 app.use(async (req, res, next) => {
-  console.log(req.session);
   const [user] = await getConnection()
     .getRepository(User)
     .find({ where: { uuid: req.session.userId } });
@@ -64,18 +63,17 @@ app.use(async (req, res, next) => {
 });
 
 // Show routes called in console during development
-if (process.env.NODE_ENV === 'development') {
-  console.log('dev');
-  app.use(morgan('dev'));
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
 }
 
 // Security
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   app.use(helmet());
 }
 
 // Add APIs
-app.use('/api', BaseRouter);
+app.use("/api", BaseRouter);
 
 // Print API errors
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -90,12 +88,12 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
  *                              Serve front-end content
  ***********************************************************************************/
 
-const viewsDir = path.join(__dirname, 'views');
-app.set('views', viewsDir);
-const staticDir = path.join(__dirname, 'public');
+const viewsDir = path.join(__dirname, "views");
+app.set("views", viewsDir);
+const staticDir = path.join(__dirname, "public");
 app.use(express.static(staticDir));
-app.get('/', (req: Request, res: Response) => {
-  res.sendFile('index.html', { root: viewsDir });
+app.get("/", (req: Request, res: Response) => {
+  res.sendFile("index.html", { root: viewsDir });
 });
 
 // Export express instance
