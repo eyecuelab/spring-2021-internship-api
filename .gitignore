@@ -3,5 +3,6 @@ dist/
 logs/*
 env/*
 !env/example.env
+!env/test.env
 .env
 .eslintcache
