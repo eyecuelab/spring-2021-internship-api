@@ -25,7 +25,6 @@ export const list = async (
 ): Promise<Response | void> => {
   const { user } = req;
   if (user) {
-    console.log(user.uuid);
     const projects = await getConnection()
       .getRepository(Project)
       .find({
