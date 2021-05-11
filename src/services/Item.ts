@@ -10,6 +10,7 @@ import { ParamsDictionary } from "express-serve-static-core";
 import { getConnection } from "typeorm";
 import { validate } from "class-validator";
 import { Item } from "../entities/Item";
+import { Project } from "../entities/Project";
 import { paramMissingError } from "../shared/constants";
 import logger from "../shared/Logger";
 
@@ -31,29 +32,6 @@ export const list = async (
 };
 
 /******************************************************************************
- *                      Get Item - "GET /api/items/:id"
- ******************************************************************************/
-
-export const one = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
-  const { user } = req;
-  if (user) {
-    const { id } = req.params as ParamsDictionary;
-    const item = await getConnection().getRepository(Item).findOne(id);
-    if (!item) {
-      res.status(NOT_FOUND);
-      res.end();
-      return;
-    }
-    return res.status(OK).json({ item });
-  } else {
-    res.status(FORBIDDEN).end();
-  }
-};
-
-/******************************************************************************
  *                       Add One - "POST /api/items"
  ******************************************************************************/
 
@@ -62,7 +40,11 @@ export const add = async (
   res: Response
 ): Promise<Response | void> => {
   const { user } = req;
-  if (user) {
+  const { item: input } = req.body;
+  const project = await getConnection()
+    .getRepository(Project)
+    .findOne(input.project);
+  if (user && project && user.uuid === project.uuid) {
     const { item: input } = req.body;
     const item = new Item();
     item.itemName = input.itemName;
@@ -97,7 +79,12 @@ export const update = async (
   res: Response
 ): Promise<Response | void> => {
   const { user } = req;
-  if (user) {
+  const { item } = req.body;
+  console.log(item);
+  const project = await getConnection()
+    .getRepository(Project)
+    .findOne(item.project);
+  if (user && project && user.uuid === project.uuid) {
     const { item } = req.body;
     if (!item && !item.id) {
       res
@@ -143,7 +130,6 @@ export const remove = async (
 
 export default {
   list,
-  one,
   add,
   update,
   remove,
