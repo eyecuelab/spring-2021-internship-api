@@ -30,29 +30,6 @@ export const list = async (
 };
 
 /******************************************************************************
- *                      Get Task - "GET /api/tasks/:id"
- ******************************************************************************/
-
-export const one = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
-  const { user } = req;
-  if (user) {
-    const { id } = req.params as ParamsDictionary;
-    const task = await getConnection().getRepository(Task).findOne(id);
-    if (!task) {
-      res.status(NOT_FOUND);
-      res.end();
-      return;
-    }
-    return res.status(OK).json({ task });
-  } else {
-    res.status(FORBIDDEN).end();
-  }
-};
-
-/******************************************************************************
  *                       Add One Task - "POST /api/tasks"
  ******************************************************************************/
 
@@ -146,7 +123,6 @@ export const remove = async (
 
 export default {
   list,
-  one,
   add,
   update,
   remove,
