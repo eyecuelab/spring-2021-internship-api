@@ -11,7 +11,7 @@ export class Item {
   @Length(2, 20)
   itemName: string;
 
-  @Column("real", { nullable: true })
+  @Column("decimal", { precision: 8, scale: 2, nullable: true })
   @IsOptional()
   @IsNumber()
   itemPrice: number;
@@ -27,12 +27,7 @@ export class Item {
   @Column({ nullable: true })
   date: string;
 
-  @Column({ nullable: true })
-  @IsOptional()
-  @IsNumber()
-  minutes: number;
-
-  @Column({ nullable: true })
+  @Column("decimal", { precision: 8, scale: 2, nullable: true })
   @IsOptional()
   @IsNumber()
   hours: number;
