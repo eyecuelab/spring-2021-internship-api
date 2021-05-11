@@ -1,97 +1,139 @@
-import { Request, Response } from 'express';
-import { BAD_REQUEST, CREATED, OK, NOT_FOUND } from 'http-status-codes';
-import { ParamsDictionary } from 'express-serve-static-core';
-import { getConnection } from 'typeorm';
-import { validate } from 'class-validator';
-import { Task } from '../entities/Task';
-import { paramMissingError } from '../shared/constants';
-import logger from '../shared/Logger';
+import { Request, Response } from "express";
+import {
+  BAD_REQUEST,
+  CREATED,
+  OK,
+  FORBIDDEN,
+  NOT_FOUND,
+} from "http-status-codes";
+import { ParamsDictionary } from "express-serve-static-core";
+import { getConnection } from "typeorm";
+import { validate } from "class-validator";
+import { Task } from "../entities/Task";
+import { Project } from "../entities/Project";
+import { paramMissingError } from "../shared/constants";
+import logger from "../shared/Logger";
 
 /******************************************************************************
  *                      Get All Tasks - "GET /api/tasks"
  ******************************************************************************/
-export const list = async (req: Request, res: Response): Promise<Response | void> => {
-  const tasks = await getConnection().getRepository(Task).find();
-  return res.status(OK).json({ tasks });
-};
-
-/******************************************************************************
- *                      Get Task - "GET /api/tasks/:id"
- ******************************************************************************/
-
-export const one = async (req: Request, res: Response): Promise<Response | void> => {
-  const { id } = req.params as ParamsDictionary;
-  const task = await getConnection().getRepository(Task).findOne(id);
-  if (!task) {
-    res.status(NOT_FOUND);
-    res.end();
-    return;
+export const list = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
+  const { user } = req;
+  if (user) {
+    const tasks = await getConnection().getRepository(Task).find();
+    return res.status(OK).json({ tasks });
+  } else {
+    res.status(FORBIDDEN).end();
   }
-  return res.status(OK).json({ task });
 };
 
 /******************************************************************************
  *                       Add One Task - "POST /api/tasks"
  ******************************************************************************/
 
-export const add = async (req: Request, res: Response): Promise<Response | void> => {
-  const taskList = await getConnection().getRepository(Task).find();
-  const position: number = taskList.length + 1;
+export const add = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
+  const { user } = req;
   const { task: input } = req.body;
-  const task = new Task();
-  task.taskName = input.taskName;
-  task.taskStatus = input.taskStatus;
-  task.project = input.project;
-  task.position = position * 100;
-  task.activity = input.activity;
-  const errors = await validate(task);
+  const project = await getConnection()
+    .getRepository(Project)
+    .findOne(input.project);
+  if (user && project && user.uuid === project.uuid) {
+    const taskList = await getConnection().getRepository(Task).find();
+    const position: number = taskList.length + 1;
+    const task = new Task();
+    task.taskName = input.taskName;
+    task.taskDesc = input.taskDesc;
+    task.taskStatus = input.taskStatus;
+    task.project = input.project;
+    task.position = position * 100;
+    task.activity = input.activity;
+    const errors = await validate(task);
 
-  if (errors.length > 0) {
-    logger.error(errors);
-    res.status(BAD_REQUEST).json({ error: errors }).end();
-    return;
+    if (errors.length > 0) {
+      logger.error(errors);
+      res.status(BAD_REQUEST).json({ error: errors }).end();
+      return;
+    }
+
+    const data = await getConnection().getRepository(Task).save(task);
+    return res.status(CREATED).json({ task: data });
+  } else {
+    res.status(FORBIDDEN).end();
   }
-
-  const data = await getConnection().getRepository(Task).save(task);
-  return res.status(CREATED).json({ task: data });
 };
 
 /******************************************************************************
  *                       Update Task - "PUT /api/tasks/:id"
  ******************************************************************************/
 
-export const update = async (req: Request, res: Response): Promise<Response | void> => {
+export const update = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
+  const { user } = req;
   const { task } = req.body;
-  if (!task && !task.id) {
-    res
-      .status(BAD_REQUEST)
-      .json({
-        error: paramMissingError,
-      })
-      .end();
-    return;
+  const targetTask = await getConnection()
+    .getRepository(Task)
+    .findOne(task.id, { relations: ["project"] });
+  if (targetTask) {
+    const project = await getConnection()
+      .getRepository(Project)
+      .findOne(targetTask.project.id);
+    if (user && project && user.uuid === project.uuid) {
+      if (!task && !task.id) {
+        res
+          .status(BAD_REQUEST)
+          .json({
+            error: paramMissingError,
+          })
+          .end();
+        return;
+      }
+      // add validation and only set provided fields
+      const data = await getConnection().getRepository(Task).save(task);
+      return res.status(OK).json({ task: data });
+    } else {
+      res.status(FORBIDDEN).end();
+    }
+  } else {
+    res.status(NOT_FOUND).end();
   }
-  // add validation and only set provided fields
-  const data = await getConnection().getRepository(Task).save(task);
-  return res.status(OK).json({ task: data });
 };
 
 /******************************************************************************
  *                    Delete Task - "DELETE /api/tasks/:id"
  ******************************************************************************/
 
-export const remove = async (req: Request, res: Response): Promise<Response | void> => {
-  const repository = await getConnection().getRepository(Task);
+export const remove = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
+  const { user } = req;
   const { id } = req.params as ParamsDictionary;
-  const intId = parseInt(id, 10);
-  const task = await repository.findOne(id);
+  const task = await getConnection()
+    .getRepository(Task)
+    .findOne(id, { relations: ["project"] });
   if (!task) {
-    res.status(BAD_REQUEST);
+    res.status(NOT_FOUND);
     res.end();
     return;
+  } else {
+    const project = await getConnection()
+      .getRepository(Project)
+      .findOne(task.project.id);
+    if (user && project && user.uuid === project.uuid) {
+      await getConnection().getRepository(Task).remove([task]);
+      return res.status(OK).end();
+    } else {
+      res.status(FORBIDDEN).end();
+    }
   }
-  await repository.remove([task]);
-  return res.status(OK).json({ task, intId });
 };
 
 /******************************************************************************
@@ -100,7 +142,6 @@ export const remove = async (req: Request, res: Response): Promise<Response | vo
 
 export default {
   list,
-  one,
   add,
   update,
   remove,

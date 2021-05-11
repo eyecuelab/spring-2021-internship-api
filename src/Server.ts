@@ -1,26 +1,66 @@
-import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import path from "path";
 import helmet from "helmet";
-
+import session from "express-session";
+import { TypeormStore } from "connect-typeorm";
 import express, { Request, Response, NextFunction } from "express";
+import { getConnection } from "typeorm";
 import { BAD_REQUEST } from "http-status-codes";
 import cors from "cors";
 
 import BaseRouter from "./routes";
 import logger from "./shared/Logger";
+import { User } from "./entities/User";
+import { Session } from "./entities/Session";
+
+declare module "express-session" {
+  export interface SessionData {
+    userId: string;
+  }
+}
+
+declare module "express-serve-static-core" {
+  interface Request {
+    user?: User;
+  }
+}
 
 // Init express
 const app = express();
+//Init Session
 
 /************************************************************************************
  *                              Set basic express settings
  ***********************************************************************************/
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL ?? "self",
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(async (req, res, next) => {
+  const sessionRepository = await getConnection().getRepository(Session);
+  return session({
+    resave: false,
+    saveUninitialized: false,
+    store: new TypeormStore({
+      cleanupLimit: 2,
+      ttl: 86400,
+    }).connect(sessionRepository),
+    secret: "keyboard cat",
+  })(req, res, next);
+});
+
+app.use(async (req, res, next) => {
+  const [user] = await getConnection()
+    .getRepository(User)
+    .find({ where: { uuid: req.session.userId } });
+  req.user = user;
+  next();
+});
 
 // Show routes called in console during development
 if (process.env.NODE_ENV === "development") {

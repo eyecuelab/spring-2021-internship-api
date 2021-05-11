@@ -21,10 +21,13 @@ export class Task {
   @Column()
   taskStatus: string;
 
+  @Column("text")
+  taskDesc: string;
+
   @Column()
   position: number;
 
-  @ManyToOne(() => Project, (project) => project.tasks)
+  @ManyToOne(() => Project, (project) => project.tasks, { onDelete: "CASCADE" })
   project: Project;
 
   @OneToMany(() => TaskActivity, (activity) => activity.task, {
