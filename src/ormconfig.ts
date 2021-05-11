@@ -25,6 +25,7 @@ const DatabaseConnectionTestConfiguration: ConnectionOptions = {
   synchronize: true,
   entities: [__dirname + `/entities/*.${ext}`],
   migrations: [__dirname + `/migration/*.${ext}`],
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   cli: {
     entitiesDir: __dirname + `/entities`,
     migrationsDir: __dirname + `/migration`,
