@@ -3,13 +3,14 @@ import {
   BAD_REQUEST,
   CREATED,
   OK,
-  NOT_FOUND,
   FORBIDDEN,
+  NOT_FOUND,
 } from "http-status-codes";
 import { ParamsDictionary } from "express-serve-static-core";
 import { getConnection } from "typeorm";
 import { validate } from "class-validator";
 import { Task } from "../entities/Task";
+import { Project } from "../entities/Project";
 import { paramMissingError } from "../shared/constants";
 import logger from "../shared/Logger";
 
@@ -38,10 +39,13 @@ export const add = async (
   res: Response
 ): Promise<Response | void> => {
   const { user } = req;
-  if (user) {
+  const { task: input } = req.body;
+  const project = await getConnection()
+    .getRepository(Project)
+    .findOne(input.project);
+  if (user && project && user.uuid === project.uuid) {
     const taskList = await getConnection().getRepository(Task).find();
     const position: number = taskList.length + 1;
-    const { task: input } = req.body;
     const task = new Task();
     task.taskName = input.taskName;
     task.taskDesc = input.taskDesc;
@@ -73,22 +77,32 @@ export const update = async (
   res: Response
 ): Promise<Response | void> => {
   const { user } = req;
-  if (user) {
-    const { task } = req.body;
-    if (!task && !task.id) {
-      res
-        .status(BAD_REQUEST)
-        .json({
-          error: paramMissingError,
-        })
-        .end();
-      return;
+  const { task } = req.body;
+  const targetTask = await getConnection()
+    .getRepository(Task)
+    .findOne(task.id, { relations: ["project"] });
+  if (targetTask) {
+    const project = await getConnection()
+      .getRepository(Project)
+      .findOne(targetTask.project.id);
+    if (user && project && user.uuid === project.uuid) {
+      if (!task && !task.id) {
+        res
+          .status(BAD_REQUEST)
+          .json({
+            error: paramMissingError,
+          })
+          .end();
+        return;
+      }
+      // add validation and only set provided fields
+      const data = await getConnection().getRepository(Task).save(task);
+      return res.status(OK).json({ task: data });
+    } else {
+      res.status(FORBIDDEN).end();
     }
-    // add validation and only set provided fields
-    const data = await getConnection().getRepository(Task).save(task);
-    return res.status(OK).json({ task: data });
   } else {
-    res.status(FORBIDDEN).end();
+    res.status(NOT_FOUND).end();
   }
 };
 
@@ -101,19 +115,24 @@ export const remove = async (
   res: Response
 ): Promise<Response | void> => {
   const { user } = req;
-  if (user) {
-    const repository = await getConnection().getRepository(Task);
-    const { id } = req.params as ParamsDictionary;
-    const task = await repository.findOne(id);
-    if (!task) {
-      res.status(BAD_REQUEST);
-      res.end();
-      return;
-    }
-    await repository.remove([task]);
-    return res.status(OK).end();
+  const { id } = req.params as ParamsDictionary;
+  const task = await getConnection()
+    .getRepository(Task)
+    .findOne(id, { relations: ["project"] });
+  if (!task) {
+    res.status(NOT_FOUND);
+    res.end();
+    return;
   } else {
-    res.status(FORBIDDEN).end();
+    const project = await getConnection()
+      .getRepository(Project)
+      .findOne(task.project.id);
+    if (user && project && user.uuid === project.uuid) {
+      await getConnection().getRepository(Task).remove([task]);
+      return res.status(OK).end();
+    } else {
+      res.status(FORBIDDEN).end();
+    }
   }
 };
 
