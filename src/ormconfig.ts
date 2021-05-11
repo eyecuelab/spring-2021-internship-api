@@ -17,6 +17,7 @@ const ext = env === 'production' ? 'js' : 'ts';
 const DatabaseConnectionTestConfiguration: ConnectionOptions = {
   type: 'postgres',
   host: process.env.TYPEORM_HOST,
+  url: process.env.DATABASE_URL,
   port: parseInt(process.env.TYPEORM_PORT ?? '5000'),
   username: process.env.TYPEORM_USERNAME,
   password: process.env.TYPEORM_PASSWORD,
@@ -24,6 +25,12 @@ const DatabaseConnectionTestConfiguration: ConnectionOptions = {
   synchronize: true,
   entities: [__dirname + `/entities/*.${ext}`],
   migrations: [__dirname + `/migration/*.${ext}`],
+  ssl: true,
+  extra: {
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  },
   cli: {
     entitiesDir: __dirname + `/entities`,
     migrationsDir: __dirname + `/migration`,
