@@ -1,7 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { IsNumber, IsInt, Length, Min, IsOptional, IsNumberString } from 'class-validator';
-import { Project } from './Project';
-// import { Transform } from "node:stream";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { IsNumber, Length, IsOptional } from "class-validator";
+import { Project } from "./Project";
 
 @Entity()
 export class Item {
@@ -12,14 +11,14 @@ export class Item {
   @Length(2, 20)
   itemName: string;
 
-  @Column('real', { nullable: true })
+  @Column("real", { nullable: true })
   @IsOptional()
-  @IsNumberString()
+  @IsNumber()
   itemPrice: number;
 
   @Column({ nullable: true })
   @IsOptional()
-  @IsNumberString()
+  @IsNumber()
   quantity: number;
 
   @Column()
@@ -30,12 +29,12 @@ export class Item {
 
   @Column({ nullable: true })
   @IsOptional()
-  @IsNumberString()
+  @IsNumber()
   minutes: number;
 
   @Column({ nullable: true })
   @IsOptional()
-  @IsNumberString()
+  @IsNumber()
   hours: number;
 
   @ManyToOne(() => Project, (project) => project.items, { onDelete: "CASCADE" })
