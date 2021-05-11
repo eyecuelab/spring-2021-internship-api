@@ -1,67 +1,76 @@
-import supertest from "supertest";
-import { getConnection } from "typeorm";
-import { User } from "../src/entities/User";
-import { initializeDB } from "../src/db";
+// EXAMPLE TESTS
 
-import { OK } from "http-status-codes";
-import { Response, SuperTest, Test } from "supertest";
+// import supertest from "supertest";
+// import { getConnection } from "typeorm";
+// import { User } from "../src/entities/User";
+// import { initializeDB } from "../src/db";
 
-import app from "../src/Server";
-import { pErr } from "../src/shared/functions";
+// import { OK } from "http-status-codes";
+// import { Response, SuperTest, Test } from "supertest";
 
-describe("Users Routes", () => {
-  const usersPath = "/api/users";
+// import app from "../src/Server";
+// import { pErr } from "../src/shared/functions";
 
-  let agent: SuperTest<Test>;
-  const testUsers = [
-    {
-      firstName: "Jack",
-      lastName: "Ripper",
-      age: 14,
-      email: "test@example.com",
-    },
-    {
-      firstName: "Elon",
-      lastName: "Carman",
-      age: 63,
-      email: "test2@example.com",
-    },
-  ];
+// describe("Users Routes", () => {
+//   const usersPath = "/api/users";
 
-  async function createTestData() {
-    await getConnection()
-      .createQueryBuilder()
-      .insert()
-      .into(User)
-      .values(testUsers)
-      .execute();
-  }
+//   let agent: SuperTest<Test>;
+//   const testUsers = [
+//     {
+//       uuid: "testUUID",
+//       email: "test@email.com",
+//       firstName: "Tester",
+//       lastName: "McTesterson",
+//     },
+//     {
+//       uuid: "testUUID",
+//       email: "test@email.com",
+//       firstName: "Tester",
+//       lastName: "McTesterson",
+//     },
+//   ];
 
-  async function destroyTestData() {
-    await getConnection().createQueryBuilder().delete().from(User).execute();
-  }
+//   const newUser = await getConnection().getRepository(User).save({
+//     uuid: v4(),
+//     email: email,
+//     firstName: firstName,
+//     lastName: lastName,
+//   });
 
-  beforeAll(async () => {
-    agent = supertest.agent(app);
-    await initializeDB();
-    await destroyTestData();
-    await createTestData();
-  });
+//   async function createTestData() {
+//     await getConnection()
+//       .createQueryBuilder()
+//       .insert()
+//       .into(User)
+//       .values(testUsers)
+//       .execute();
+//   }
 
-  afterAll(async () => {
-    await destroyTestData();
-  });
+//   async function destroyTestData() {
+//     await getConnection().createQueryBuilder().delete().from(User).execute();
+//   }
 
-  describe(`"GET:${usersPath}"`, () => {
-    it(`should return a JSON object with all the users and a status code of "${OK}" if the
-            request was successful.`, () => {
-      agent.get(usersPath).end((err: Error, res: Response) => {
-        pErr(err);
-        expect(res.status).toBe(OK);
-        const retUsers = res.body.users;
-        expect(retUsers).toEqual(testUsers);
-        expect(res.body.error).toBeUndefined();
-      });
-    });
-  });
-});
+//   beforeAll(async () => {
+//     agent = supertest.agent(app);
+//     await initializeDB();
+//     await destroyTestData();
+//     await createTestData();
+//   });
+
+//   afterAll(async () => {
+//     await destroyTestData();
+//   });
+
+//   describe(`"GET:${usersPath}"`, () => {
+//     it(`should return a JSON object with all the users and a status code of "${OK}" if the
+//             request was successful.`, () => {
+//       agent.get(usersPath).end((err: Error, res: Response) => {
+//         pErr(err);
+//         expect(res.status).toBe(OK);
+//         const retUsers = res.body.users;
+//         expect(retUsers).toEqual(testUsers);
+//         expect(res.body.error).toBeUndefined();
+//       });
+//     });
+//   });
+// });
