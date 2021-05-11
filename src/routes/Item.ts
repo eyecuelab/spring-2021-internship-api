@@ -2,11 +2,6 @@ import { Router } from "express";
 import ItemsService from "../services/Item";
 
 const router = Router();
-/******************************************************************************
- *                      Get All Users - "GET /api/items"
- ******************************************************************************/
-
-router.get("/", ItemsService.list);
 
 /******************************************************************************
  *                       Add One - "POST /api/items"
