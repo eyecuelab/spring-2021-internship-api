@@ -1,11 +1,5 @@
 import { Request, Response } from "express";
-import {
-  BAD_REQUEST,
-  CREATED,
-  OK,
-  NOT_FOUND,
-  FORBIDDEN,
-} from "http-status-codes";
+import { BAD_REQUEST, CREATED, OK, FORBIDDEN } from "http-status-codes";
 import { ParamsDictionary } from "express-serve-static-core";
 import { getConnection } from "typeorm";
 import { validate } from "class-validator";
@@ -80,26 +74,29 @@ export const update = async (
 ): Promise<Response | void> => {
   const { user } = req;
   const { item } = req.body;
-  console.log(item);
-  const project = await getConnection()
-    .getRepository(Project)
-    .findOne(item.project);
-  if (user && project && user.uuid === project.uuid) {
-    const { item } = req.body;
-    if (!item && !item.id) {
-      res
-        .status(BAD_REQUEST)
-        .json({
-          error: paramMissingError,
-        })
-        .end();
-      return;
+  const targetItem = await getConnection()
+    .getRepository(Item)
+    .findOne(item.id, { relations: ["project"] });
+  if (targetItem) {
+    const project = await getConnection()
+      .getRepository(Project)
+      .findOne(targetItem.project.id);
+    if (user && project && user.uuid === project.uuid) {
+      const { item } = req.body;
+      if (!item && !item.id) {
+        res
+          .status(BAD_REQUEST)
+          .json({
+            error: paramMissingError,
+          })
+          .end();
+        return;
+      }
+      const data = await getConnection().getRepository(Item).save(item);
+      return res.status(OK).json({ item: data });
+    } else {
+      res.status(FORBIDDEN).end();
     }
-    // add validation and only set provided fields
-    const data = await getConnection().getRepository(Item).save(item);
-    return res.status(OK).json({ item: data });
-  } else {
-    res.status(FORBIDDEN).end();
   }
 };
 
@@ -112,19 +109,25 @@ export const remove = async (
   res: Response
 ): Promise<Response | void> => {
   const { user } = req;
-  if (user) {
-    const repository = await getConnection().getRepository(Item);
-    const { id } = req.params as ParamsDictionary;
-    const item = await repository.findOne(id);
-    if (!item) {
-      res.status(BAD_REQUEST);
-      res.end();
-      return;
+  const { id } = req.params as ParamsDictionary;
+  const item = await getConnection()
+    .getRepository(Item)
+    .findOne(id, { relations: ["project"] });
+  if (!item) {
+    res.status(BAD_REQUEST);
+    res.end();
+    return;
+  }
+  if (item) {
+    const project = await getConnection()
+      .getRepository(Project)
+      .findOne(item.project.id);
+    if (user && project && user.uuid === project.uuid) {
+      await getConnection().getRepository(Item).remove([item]);
+      return res.status(OK).end();
+    } else {
+      res.status(FORBIDDEN).end();
     }
-    await repository.remove([item]);
-    return res.status(OK).end();
-  } else {
-    res.status(FORBIDDEN).end();
   }
 };
 
