@@ -15,22 +15,6 @@ import { paramMissingError } from "../shared/constants";
 import logger from "../shared/Logger";
 
 /******************************************************************************
- *                      Get All Tasks - "GET /api/tasks"
- ******************************************************************************/
-export const list = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
-  const { user } = req;
-  if (user) {
-    const tasks = await getConnection().getRepository(Task).find();
-    return res.status(OK).json({ tasks });
-  } else {
-    res.status(FORBIDDEN).end();
-  }
-};
-
-/******************************************************************************
  *                       Add One Task - "POST /api/tasks"
  ******************************************************************************/
 
@@ -141,7 +125,6 @@ export const remove = async (
  ******************************************************************************/
 
 export default {
-  list,
   add,
   update,
   remove,
