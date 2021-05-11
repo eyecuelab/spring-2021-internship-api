@@ -1,28 +1,19 @@
-import { Request, Response } from "express";
-import {
-  BAD_REQUEST,
-  CREATED,
-  OK,
-  NOT_FOUND,
-  FORBIDDEN,
-} from "http-status-codes";
-import { ParamsDictionary } from "express-serve-static-core";
-import { getConnection } from "typeorm";
-import { validate } from "class-validator";
-import { Project } from "../entities/Project";
-import { Task } from "../entities/Task";
-import { Item } from "../entities/Item";
-import { paramMissingError } from "../shared/constants";
-import logger from "../shared/Logger";
+import { Request, Response } from 'express';
+import { BAD_REQUEST, CREATED, OK, NOT_FOUND, FORBIDDEN } from 'http-status-codes';
+import { ParamsDictionary } from 'express-serve-static-core';
+import { getConnection } from 'typeorm';
+import { validate } from 'class-validator';
+import { Project } from '../entities/Project';
+import { Task } from '../entities/Task';
+import { Item } from '../entities/Item';
+import { paramMissingError } from '../shared/constants';
+import logger from '../shared/Logger';
 // import { isLoggedIn } from "../Server";
 
 /******************************************************************************
  *                      Get All Projects - "GET /api/projects"
  ******************************************************************************/
-export const list = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const list = async (req: Request, res: Response): Promise<Response | void> => {
   const { user } = req;
   if (user) {
     const projects = await getConnection()
@@ -40,10 +31,7 @@ export const list = async (
  *                      Get Project - "GET /api/projects/:id"
  ******************************************************************************/
 
-export const one = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const one = async (req: Request, res: Response): Promise<Response | void> => {
   const { user } = req;
   const { id } = req.params as ParamsDictionary;
   const project = await getConnection().getRepository(Project).findOne(id);
@@ -55,30 +43,30 @@ export const one = async (
     const toDoTasks = await getConnection()
       .getRepository(Task)
       .find({
-        where: { project: { id }, taskStatus: "todo" },
-        order: { position: "ASC" },
+        where: { project: { id }, taskStatus: 'todo' },
+        order: { position: 'ASC' },
       });
     const doingTasks = await getConnection()
       .getRepository(Task)
       .find({
-        where: { project: { id }, taskStatus: "doing" },
-        order: { position: "ASC" },
+        where: { project: { id }, taskStatus: 'doing' },
+        order: { position: 'ASC' },
       });
     const doneTasks = await getConnection()
       .getRepository(Task)
       .find({
-        where: { project: { id }, taskStatus: "done" },
-        order: { position: "ASC" },
+        where: { project: { id }, taskStatus: 'done' },
+        order: { position: 'ASC' },
       });
     const materialItems = await getConnection()
       .getRepository(Item)
-      .find({ where: { project: { id }, category: "material" } });
+      .find({ where: { project: { id }, category: 'material' } });
     const laborItems = await getConnection()
       .getRepository(Item)
-      .find({ where: { project: { id }, category: "labor" } });
+      .find({ where: { project: { id }, category: 'labor' } });
     const otherItems = await getConnection()
       .getRepository(Item)
-      .find({ where: { project: { id }, category: "other" } });
+      .find({ where: { project: { id }, category: 'other' } });
 
     return res.status(OK).json({
       currentProject: {
@@ -103,11 +91,9 @@ export const one = async (
  *                       Add One Project - "POST /api/projects"
  ******************************************************************************/
 
-export const add = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const add = async (req: Request, res: Response): Promise<Response | void> => {
   const { user } = req;
+  console.log('what', user);
   if (user) {
     const { project: input } = req.body;
     const project = new Project();
@@ -134,15 +120,10 @@ export const add = async (
  *                       Update Project - "PUT /api/projects/:id"
  ******************************************************************************/
 
-export const update = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const update = async (req: Request, res: Response): Promise<Response | void> => {
   const { user } = req;
   const { project } = req.body;
-  const targetProject = await getConnection()
-    .getRepository(Project)
-    .findOne(project.id);
+  const targetProject = await getConnection().getRepository(Project).findOne(project.id);
   if (targetProject && user && user.uuid === targetProject.uuid) {
     const data = await getConnection().getRepository(Project).save(project);
     return res.status(OK).json({ project: data });
@@ -165,15 +146,10 @@ export const update = async (
  *                    Delete Project - "DELETE /api/projects/:id"
  ******************************************************************************/
 
-export const remove = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
+export const remove = async (req: Request, res: Response): Promise<Response | void> => {
   const { user } = req;
   const { id } = req.params as ParamsDictionary;
-  const targetProject = await getConnection()
-    .getRepository(Project)
-    .findOne(id);
+  const targetProject = await getConnection().getRepository(Project).findOne(id);
   if (!targetProject) {
     res.status(NOT_FOUND);
     res.end();
