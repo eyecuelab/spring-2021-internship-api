@@ -1,16 +1,18 @@
-import dotenv from 'dotenv';
 import { ConnectionOptions } from 'typeorm';
 
-// Set the env file
 const env = process.env.NODE_ENV ?? 'development';
-const envVars = dotenv.config({
-  path: `./env/${env}.env`,
-});
-if (envVars.error) {
-  throw envVars.error;
+if (env !== 'production') {
+  // eslint-disable-next-line
+  const dotenv = require('dotenv');
+  const envVars = dotenv.config({
+    path: `./env/${env}.env`,
+  });
+  if (envVars.error) {
+    throw envVars.error;
+  }
 }
 
-const ext = process.env.NODE_ENV === 'production' ? 'js' : 'ts';
+const ext = env === 'production' ? 'js' : 'ts';
 
 const DatabaseConnectionTestConfiguration: ConnectionOptions = {
   type: 'postgres',
