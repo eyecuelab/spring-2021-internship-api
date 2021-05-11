@@ -46,9 +46,13 @@ export const one = async (
   res: Response
 ): Promise<Response | void> => {
   const { user } = req;
-  if (user) {
-    const { id } = req.params as ParamsDictionary;
-    const project = await getConnection().getRepository(Project).findOne(id);
+  const { id } = req.params as ParamsDictionary;
+  const project = await getConnection().getRepository(Project).findOne(id);
+  if (!project) {
+    res.status(NOT_FOUND);
+    res.end();
+    return;
+  } else if (user && project && user.uuid === project.uuid) {
     const toDoTasks = await getConnection()
       .getRepository(Task)
       .find({
@@ -76,11 +80,6 @@ export const one = async (
     const otherItems = await getConnection()
       .getRepository(Item)
       .find({ where: { project: { id }, category: "other" } });
-    if (!project) {
-      res.status(NOT_FOUND);
-      res.end();
-      return;
-    }
 
     return res.status(OK).json({
       currentProject: {
@@ -141,20 +140,23 @@ export const update = async (
   res: Response
 ): Promise<Response | void> => {
   const { user } = req;
-  if (user) {
-    const { project } = req.body;
-    if (!project && !project.id) {
-      res
-        .status(BAD_REQUEST)
-        .json({
-          error: paramMissingError,
-        })
-        .end();
-      return;
-    }
-    // add validation and only set provided fields
+  const { project } = req.body;
+  const targetProject = await getConnection()
+    .getRepository(Project)
+    .findOne(project.id);
+  if (targetProject && user && user.uuid === targetProject.uuid) {
     const data = await getConnection().getRepository(Project).save(project);
     return res.status(OK).json({ project: data });
+  } else if (!project && !project.id) {
+    res
+      .status(BAD_REQUEST)
+      .json({
+        error: paramMissingError,
+      })
+      .end();
+    return;
+  } else if (!targetProject) {
+    res.status(NOT_FOUND).end();
   } else {
     res.status(FORBIDDEN).end();
   }
@@ -169,16 +171,16 @@ export const remove = async (
   res: Response
 ): Promise<Response | void> => {
   const { user } = req;
-  if (user) {
-    const repository = await getConnection().getRepository(Project);
-    const { id } = req.params as ParamsDictionary;
-    const project = await repository.findOne(id);
-    if (!project) {
-      res.status(BAD_REQUEST);
-      res.end();
-      return;
-    }
-    await repository.remove([project]);
+  const { id } = req.params as ParamsDictionary;
+  const targetProject = await getConnection()
+    .getRepository(Project)
+    .findOne(id);
+  if (!targetProject) {
+    res.status(NOT_FOUND);
+    res.end();
+    return;
+  } else if (targetProject && user && user.uuid === targetProject.uuid) {
+    await getConnection().getRepository(Project).remove([targetProject]);
     return res.status(OK).end();
   } else {
     res.status(FORBIDDEN).end();
