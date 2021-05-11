@@ -1,5 +1,11 @@
 import { Request, Response } from "express";
-import { BAD_REQUEST, CREATED, OK, FORBIDDEN } from "http-status-codes";
+import {
+  BAD_REQUEST,
+  CREATED,
+  OK,
+  FORBIDDEN,
+  NOT_FOUND,
+} from "http-status-codes";
 import { ParamsDictionary } from "express-serve-static-core";
 import { getConnection } from "typeorm";
 import { validate } from "class-validator";
@@ -97,6 +103,8 @@ export const update = async (
     } else {
       res.status(FORBIDDEN).end();
     }
+  } else {
+    res.status(NOT_FOUND).end();
   }
 };
 
@@ -114,11 +122,10 @@ export const remove = async (
     .getRepository(Item)
     .findOne(id, { relations: ["project"] });
   if (!item) {
-    res.status(BAD_REQUEST);
+    res.status(NOT_FOUND);
     res.end();
     return;
-  }
-  if (item) {
+  } else {
     const project = await getConnection()
       .getRepository(Project)
       .findOne(item.project.id);
