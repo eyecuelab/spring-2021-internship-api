@@ -7,25 +7,6 @@ import { TaskActivity } from "../entities/TaskActivity";
 import logger from "../shared/Logger";
 
 /******************************************************************************
- *                      Get All Task Activities - "GET /api/task-activities"
- ******************************************************************************/
-
-export const list = async (
-  req: Request,
-  res: Response
-): Promise<Response | void> => {
-  const { user } = req;
-  if (user) {
-    const taskActivities = await getConnection()
-      .getRepository(TaskActivity)
-      .find();
-    return res.status(OK).json({ taskActivities });
-  } else {
-    res.status(FORBIDDEN).end();
-  }
-};
-
-/******************************************************************************
  *                       Add One - "POST /api/task-activities"
  ******************************************************************************/
 
@@ -83,7 +64,6 @@ export const remove = async (
 };
 
 export default {
-  list,
   add,
   remove,
 };
