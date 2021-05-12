@@ -51,7 +51,7 @@ app.use(async (req, res, next) => {
     proxy: process.env.NODE_ENV === 'production' ? true : false,
     cookie: {
       sameSite: 'none',
-      secure: process.env.NODE_ENV === 'production' ? true : false,
+      secure: false,
     },
     store: new TypeormStore({
       cleanupLimit: 2,
