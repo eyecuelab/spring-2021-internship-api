@@ -48,6 +48,7 @@ app.use(async (req, res, next) => {
   return session({
     resave: false,
     saveUninitialized: false,
+    proxy: process.env.NODE_ENV === 'production' ? true : false,
     cookie: {
       secure: process.env.NODE_ENV === 'production' ? true : false,
     },
