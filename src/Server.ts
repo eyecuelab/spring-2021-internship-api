@@ -40,9 +40,9 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-if (process.env.NODE_ENV === 'production') {
-  app.set('trust proxy', 1); // trust first proxy
-}
+
+app.set('trust proxy', true);
+
 app.use(async (req, res, next) => {
   const sessionRepository = await getConnection().getRepository(Session);
   return session({
@@ -50,6 +50,7 @@ app.use(async (req, res, next) => {
     saveUninitialized: false,
     proxy: process.env.NODE_ENV === 'production' ? true : false,
     cookie: {
+      sameSite: 'none',
       secure: process.env.NODE_ENV === 'production' ? true : false,
     },
     store: new TypeormStore({
