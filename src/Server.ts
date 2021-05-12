@@ -49,6 +49,10 @@ app.use(async (req, res, next) => {
     resave: false,
     saveUninitialized: false,
     proxy: process.env.NODE_ENV === 'production' ? true : false,
+    cookie: {
+      sameSite: 'none',
+      secure: true,
+    },
     store: new TypeormStore({
       cleanupLimit: 2,
       ttl: 86400,
