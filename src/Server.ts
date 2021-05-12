@@ -32,9 +32,6 @@ const app = express();
 /************************************************************************************
  *                              Set basic express settings
  ***********************************************************************************/
-if (process.env.NODE_ENV === 'production') {
-  app.set('trust proxy', 1);
-}
 app.use(
   cors({
     origin: process.env.CLIENT_URL ?? 'self',
@@ -43,11 +40,17 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1); // trust first proxy
+}
 app.use(async (req, res, next) => {
   const sessionRepository = await getConnection().getRepository(Session);
   return session({
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production' ? true : false,
+    },
     store: new TypeormStore({
       cleanupLimit: 2,
       ttl: 86400,
