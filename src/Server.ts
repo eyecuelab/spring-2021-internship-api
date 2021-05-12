@@ -1,7 +1,7 @@
 import morgan from 'morgan';
 import path from 'path';
 import helmet from 'helmet';
-import session from 'express-session';
+import session, { SessionOptions } from 'express-session';
 import { TypeormStore } from 'connect-typeorm';
 import express, { Request, Response, NextFunction } from 'express';
 import { getConnection } from 'typeorm';
@@ -41,24 +41,30 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.set('trust proxy', true);
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', true);
+}
 
 app.use(async (req, res, next) => {
   const sessionRepository = await getConnection().getRepository(Session);
-  return session({
+  const sessObj: SessionOptions = {
     resave: false,
     saveUninitialized: false,
-    proxy: process.env.NODE_ENV === 'production' ? true : false,
-    cookie: {
-      sameSite: 'none',
-      secure: true,
-    },
     store: new TypeormStore({
       cleanupLimit: 2,
       ttl: 86400,
     }).connect(sessionRepository),
-    secret: 'keyboard cat',
-  })(req, res, next);
+    secret: ['new-secret', 'keyboard cat'],
+  };
+  if (process.env.NODE_ENV === 'production') {
+    sessObj.proxy = true;
+    sessObj.cookie = {
+      sameSite: 'none',
+      secure: true,
+    };
+  }
+
+  return session(sessObj)(req, res, next);
 });
 
 app.use(async (req, res, next) => {

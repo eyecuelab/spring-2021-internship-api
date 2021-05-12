@@ -93,13 +93,16 @@ export const one = async (req: Request, res: Response): Promise<Response | void>
 
 export const add = async (req: Request, res: Response): Promise<Response | void> => {
   const { user } = req;
+  const { project: input } = req.body;
 
-  if (user) {
-    const { project: input } = req.body;
+  if (user && user.uuid === input.uuid) {
+    const start = new Date();
+    const end = new Date();
+    end.setDate(start.getDate() + 7); // 7 days
     const project = new Project();
     project.projectName = input.projectName;
-    project.startDate = input.startDate;
-    project.endDate = input.endDate;
+    project.startDate = input.startDate ?? start.toISOString();
+    project.endDate = input.endDate ?? end.toISOString();
     project.uuid = input.uuid;
     const errors = await validate(project);
 
