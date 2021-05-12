@@ -93,7 +93,7 @@ export const one = async (req: Request, res: Response): Promise<Response | void>
 
 export const add = async (req: Request, res: Response): Promise<Response | void> => {
   const { user } = req;
-  console.log('what', user);
+
   if (user) {
     const { project: input } = req.body;
     const project = new Project();

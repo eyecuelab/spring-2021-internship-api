@@ -65,7 +65,6 @@ app.use(async (req, res, next) => {
   const [user] = await getConnection()
     .getRepository(User)
     .find({ where: { uuid: req.session.userId } });
-  console.log('middleware', user, req.session);
   req.user = user;
   next();
 });
