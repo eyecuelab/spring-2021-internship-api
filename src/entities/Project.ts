@@ -1,7 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { Length } from 'class-validator';
-import { Task } from './Task';
-import { Item } from './Item';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Length } from "class-validator";
+import { Task } from "./Task";
+import { Item } from "./Item";
 
 @Entity()
 export class Project {
@@ -20,6 +20,15 @@ export class Project {
 
   @Column()
   uuid: string;
+
+  @Column()
+  hourly: number;
+
+  @Column()
+  units: number;
+
+  @Column()
+  markup: number;
 
   @OneToMany(() => Task, (task) => task.project)
   tasks: Task;
