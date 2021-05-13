@@ -25,6 +25,7 @@ export const config: ConnectionOptions = {
   synchronize: process.env.NODE_ENV === 'test',
   entities: [__dirname + `/entities/*.${ext}`],
   migrations: [__dirname + `/migration/*.${ext}`],
+  migrationsRun: true,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   cli: {
     entitiesDir: __dirname + `/entities`,
