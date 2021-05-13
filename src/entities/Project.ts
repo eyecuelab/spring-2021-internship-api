@@ -21,13 +21,13 @@ export class Project {
   @Column()
   uuid: string;
 
-  @Column()
+  @Column("decimal", { precision: 8, scale: 2, nullable: true })
   hourly: number;
 
-  @Column()
+  @Column("decimal", { precision: 8, scale: 2, nullable: true })
   units: number;
 
-  @Column()
+  @Column("decimal", { precision: 8, scale: 2, nullable: true })
   markup: number;
 
   @OneToMany(() => Task, (task) => task.project)
