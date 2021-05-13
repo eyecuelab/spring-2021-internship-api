@@ -22,10 +22,10 @@ export const config: ConnectionOptions = {
   username: process.env.TYPEORM_USERNAME,
   password: process.env.TYPEORM_PASSWORD,
   database: process.env.TYPEORM_DATABASE,
-  synchronize: false,
+  synchronize: process.env.NODE_ENV === 'test',
   entities: [__dirname + `/entities/*.${ext}`],
   migrations: [__dirname + `/migration/*.${ext}`],
-  migrationsRun: true,
+  migrationsRun: process.env.NODE_ENV !== 'test',
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   cli: {
     entitiesDir: __dirname + `/dist/entities`,
